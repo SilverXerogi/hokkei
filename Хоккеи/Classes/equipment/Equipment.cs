@@ -6,12 +6,30 @@ using System.Threading.Tasks;
 
 namespace Хоккеи.Classes.equipment
 {
-    public abstract class Equipment
+    public class Equipment
     {
-        public String Name { get; protected set; }
+        public String Name { get; private set; }
+        private List<GearItem> Items { get; set; }
 
-        public abstract Int32 TotalAgilityBonus { get; }
-        public abstract Int32 TotalStrengthBonus { get; }
-        public abstract Int32 TotalStaminaBonus { get; }
+        public Int32 TotalAgilityBonus => Items.Sum(item => item.AgilityBonus);
+        public Int32 TotalStrengthBonus => Items.Sum(item => item.StrengthBonus);
+        public Int32 TotalStaminaBonus => Items.Sum(item => item.StaminaBonus);
+        public Int32 TotalWeight => Items.Sum(item => item.Weight);
+
+
+        public Int32 TotalAttackBonus => Items.Sum(item => item.AttackBonus);
+        public Int32 TotalDefenseBonus => Items.Sum(item => item.DefenseBonus);
+        public Single TotalStaminaEfficiency => Items.Sum(item => item.StaminaEfficiency);
+
+        public Equipment(String name, List<GearItem> items)
+        {
+            Name = name;
+            Items = items;
+        }
+
+        public void AddItem(GearItem item)
+        {
+            Items.Add(item);
+        }
     }
 }

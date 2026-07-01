@@ -62,14 +62,39 @@ namespace Хоккеи
         public Int32 GetTotalStrength() => Strength + Gear.TotalStrengthBonus;
         public Int32 GetTotalStamina() => Stamina + Gear.TotalStaminaBonus;
 
-        public Int32 GetAttackChance() => GetTotalAgility();
-        public Int32 GetDefenseChance() => GetTotalStrength();
+        public Int32 GetAttackChance()
+        {
+            Int32 baseAgility = Agility + Gear.TotalAgilityBonus;
+            Int32 attackBonus = Gear.TotalAttackBonus;
+            Int32 total = baseAgility + attackBonus;
+
+            if (total < 0) total = 0;
+            if (total > 100) total = 100;
+            return total;
+        }
+        public Int32 GetDefenseChance()
+        {
+            Int32 baseStrength = Strength + Gear.TotalStrengthBonus;
+            Int32 defenseBonus = Gear.TotalDefenseBonus;
+            Int32 total = baseStrength + defenseBonus;
+
+            if (total < 0) total = 0;
+            if (total > 100) total = 100;
+            return total;
+        }
 
         public virtual void TickEnergy()
         {
             if (IsOnIce && Energy > 0)
             {
-                DrainEnergy(1);
+                Single baseDrain = 1.0f;
+                Single weightPenalty = Gear.TotalWeight * 0.01f;
+                Single staminaEfficiency = Gear.TotalStaminaEfficiency;
+                Single totalDrain = (baseDrain + weightPenalty) * (1.0f - staminaEfficiency);
+
+                totalDrain = Math.Max(totalDrain, 0.1f);
+
+                DrainEnergy(totalDrain);
             }
             else if (!IsOnIce && Energy < MaxEnergy)
             {

@@ -46,7 +46,11 @@
     <Compile Include="Classes\enums\PlayerRole.cs" />
     <Compile Include="Classes\equipment\Equipment.cs" />
     <Compile Include="Classes\equipment\GearItem.cs" />
-    <Compile Include="Classes\equipment\PlayerEquipment.cs" />
+    <Compile Include="Classes\equipment\TypesOfEquip\Gloves.cs" />
+    <Compile Include="Classes\equipment\TypesOfEquip\Skates.cs" />
+    <Compile Include="Classes\equipment\TypesOfEquip\Stick.cs" />
+    <Compile Include="Classes\equipment\TypesOfEquip\Uniform.cs" />
+    <Compile Include="Classes\Managers\TimeManager.cs" />
     <Compile Include="Classes\Players\Defender.cs" />
     <Compile Include="Classes\Players\Forward.cs" />
     <Compile Include="Classes\Players\Goalie.cs" />
