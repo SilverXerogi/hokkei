@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\enums\AttackResult.cs" />
     <Compile Include="Classes\enums\PlayerRole.cs" />
     <Compile Include="Classes\equipment\Equipment.cs" />
     <Compile Include="Classes\equipment\GearItem.cs" />
@@ -50,9 +51,11 @@
     <Compile Include="Classes\equipment\TypesOfEquip\Skates.cs" />
     <Compile Include="Classes\equipment\TypesOfEquip\Stick.cs" />
     <Compile Include="Classes\equipment\TypesOfEquip\Uniform.cs" />
+    <Compile Include="Classes\Managers\CombatManager.cs" />
     <Compile Include="Classes\Managers\EnergyManager.cs" />
     <Compile Include="Classes\Managers\TimeManager.cs" />
     <Compile Include="Classes\Managers\ZamenaManager.cs" />
+    <Compile Include="Classes\Match\Match.cs" />
     <Compile Include="Classes\Players\Defender.cs" />
     <Compile Include="Classes\Players\Forward.cs" />
     <Compile Include="Classes\Players\Goalie.cs" />
