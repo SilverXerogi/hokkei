@@ -43,6 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\enums\PlayerRole.cs" />
+    <Compile Include="Classes\equipment\Equipment.cs" />
+    <Compile Include="Classes\equipment\GearItem.cs" />
+    <Compile Include="Classes\equipment\PlayerEquipment.cs" />
+    <Compile Include="Classes\Players\Defender.cs" />
+    <Compile Include="Classes\Players\Forward.cs" />
+    <Compile Include="Classes\Players\Goalie.cs" />
+    <Compile Include="Classes\Players\Player.cs" />
+    <Compile Include="Classes\Teams\Line.cs" />
+    <Compile Include="Classes\Teams\Team.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
