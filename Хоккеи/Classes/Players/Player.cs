@@ -10,30 +10,71 @@ namespace Хоккеи
 {
     abstract public class Player
     {
-        public int id { get; private set; }
+        public int Id { get; private set; }
         public string Name { get; private set; }
         public PlayerRole Role { get; private set; }
         public int Agility { get; private set; }
         public int Strength { get; private set; }
         public int Stamina { get; private set; }
 
-        public float maxEnergy { get; private set; }
-        public float Energy { get; set; }
-        public Equipment Gear { get; set; }
-        public bool IsOnIce { get; set; }
+        public float MaxEnergy { get; private set; }
+        public float Energy { get; private set; }
 
+        public Equipment Gear { get; private set; }
+
+        public bool IsOnIce { get; set; }
         public bool IsGoalie { get { return (Role == PlayerRole.Goalie); } }
 
-        protected Player(int id, string name, PlayerRole role, int agility, int strength, int stamina, float maxEnergy, float energy, Equipment gear, bool isOnIce)
+        protected Player(Int32 id, String name, PlayerRole role, Int32 agility, Int32 strength, Int32 stamina, Equipment gear)
         {
-            this.id = id;
+            Id = id;
             Name = name;
             Role = role;
             Agility = agility;
             Strength = strength;
             Stamina = stamina;
-            this.maxEnergy = maxEnergy;
-            Energy = energy;
+            MaxEnergy = 50 + stamina;
+            Energy = MaxEnergy;
+            Gear = gear;
+            IsOnIce = false;
+        }
+        public void SetGear(Equipment gear)
+        {
+            Gear = gear;
+        }
+
+        public void SetOnIce(Boolean isOnIce)
+        {
+            IsOnIce = isOnIce;
+        }
+
+        public void AddEnergy(Single amount)
+        {
+            Energy = Math.Min(Energy + amount, MaxEnergy);
+        }
+
+        public void DrainEnergy(Single amount)
+        {
+            Energy = Math.Max(Energy - amount, 0);
+        }
+
+        public Int32 GetTotalAgility() => Agility + Gear.TotalAgilityBonus;
+        public Int32 GetTotalStrength() => Strength + Gear.TotalStrengthBonus;
+        public Int32 GetTotalStamina() => Stamina + Gear.TotalStaminaBonus;
+
+        public Int32 GetAttackChance() => GetTotalAgility();
+        public Int32 GetDefenseChance() => GetTotalStrength();
+
+        public virtual void TickEnergy()
+        {
+            if (IsOnIce && Energy > 0)
+            {
+                DrainEnergy(1);
+            }
+            else if (!IsOnIce && Energy < MaxEnergy)
+            {
+                AddEnergy(MaxEnergy * 0.01f);
+            }
         }
     }
  }

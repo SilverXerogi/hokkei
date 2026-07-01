@@ -6,16 +6,12 @@ using System.Threading.Tasks;
 
 namespace Хоккеи.Classes.equipment
 {
-    public class Equipment
+    public abstract class Equipment
     {
-        public string Name {  get; private set; }
-        public float AttackBonus { get; private set; }
-        public float DefenceBonus { get; private set; }
-        public Equipment (string name, float attackBonus, float defenceBonus)
-        {
-            Name = name;
-            AttackBonus = attackBonus;
-            DefenceBonus = defenceBonus;
-        }
+        public String Name { get; protected set; }
+
+        public abstract Int32 TotalAgilityBonus { get; }
+        public abstract Int32 TotalStrengthBonus { get; }
+        public abstract Int32 TotalStaminaBonus { get; }
     }
 }
