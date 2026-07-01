@@ -166,5 +166,16 @@ namespace Хоккеи.Classes.Teams
                 player.AddEnergy(amount);
             }
         }
+
+        public void SetCurrentLine(Line newLine)
+        {
+            CurrentLine.SetAllOnIce(false);
+
+            CurrentLine = newLine;
+
+            CurrentLine.SetAllOnIce(true);
+
+            UpdateBench();
+        }
     }
 }

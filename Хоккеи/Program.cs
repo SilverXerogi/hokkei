@@ -7,6 +7,7 @@ using Хоккеи.Classes.equipment;
 using Хоккеи.Classes.equipment.TypesOfEquip;
 using Хоккеи.Classes.Managers;
 using Хоккеи.Classes.Players;
+using Хоккеи.Classes.Strategies;
 using Хоккеи.Classes.Teams;
 
 namespace Хоккеи
@@ -31,7 +32,8 @@ namespace Хоккеи
             TestAttackLine(team);
             TestEnergy(team);
             TestTimeManager();
-
+            TestEnergyManager(team);
+            TestZamenaManager();
             Console.WriteLine("  ВСЕ ТЕСТЫ ЗАВЕРШЕНЫ");
 
         }
@@ -339,7 +341,6 @@ namespace Хоккеи
             Console.WriteLine($"  Энергия: {testPlayer.Energy:F1}/{testPlayer.MaxEnergy:F1}");
             Console.WriteLine($"  Восстановлено (1% от MaxEnergy в сек): {(testPlayer.MaxEnergy * 0.01f * 10):F1}");
 
-            // Тест перерыва
             team.AddEnergyToAll(40);
             Console.WriteLine($"\nПосле перерыва (+40):");
             Console.WriteLine($"  Энергия: {testPlayer.Energy:F1}/{testPlayer.MaxEnergy:F1}");
@@ -396,6 +397,156 @@ namespace Хоккеи
                              breakEndedCount == 1 &&
                              time.CurrentPeriod == 2;
             Console.WriteLine($"\nРезультат: {(isValid ? "ПРОЙДЕН" : "ПРОВАЛЕН")}\n");
+        }
+        static void TestEnergyManager(Team team)
+        {
+            Console.WriteLine("ТЕСТ 12: EnergyManager");
+            
+
+            EnergyManager energyManager = new EnergyManager();
+
+            Uniform Uniform = new Uniform(2, 3, 5, 2);
+            Stick stick = new Stick(5, 0, 2, 1, 10);
+            Skates skates = new Skates(3, 2, 3, 3, 0.10f);
+            Gloves gloves = new Gloves(2, 1, 2, 1, 8);
+
+            List<GearItem> items = new List<GearItem> { Uniform, stick, skates, gloves };
+            Equipment equipment = new Equipment("Комплект", items);
+
+            Goalie goalie1 = new Goalie(1, "Вратарь 1", 50, 60, 70, 75, equipment);
+            Goalie goalie2 = new Goalie(2, "Вратарь 2", 55, 65, 75, 70, equipment);
+
+            List<Defender> defenders = new List<Defender>();
+            for (Int32 i = 0; i < 8; i++)
+            {
+                defenders.Add(new Defender(10 + i, $"Защитник {i + 1}", 40, 70, 65, equipment));
+            }
+
+            List<Forward> forwards = new List<Forward>();
+            for (Int32 i = 0; i < 12; i++)
+            {
+                forwards.Add(new Forward(100 + i, $"Нападающий {i + 1}", 75, 45, 60, equipment));
+            }
+
+            Team team2 = new Team("Соперники", goalie1, goalie2, defenders, forwards);
+
+            team.AddEnergyToAll(-1000);
+            team.AddEnergyToAll(50);
+            team2.AddEnergyToAll(-1000);
+            team2.AddEnergyToAll(50);
+
+            Player testPlayer1 = team.CurrentLine.Forwards[0];
+            Player testPlayer2 = team2.CurrentLine.Forwards[0];
+
+            Console.WriteLine($"Начальная энергия игрока 1: {testPlayer1.Energy:F1}/{testPlayer1.MaxEnergy:F1}");
+            Console.WriteLine($"Начальная энергия игрока 2: {testPlayer2.Energy:F1}/{testPlayer2.MaxEnergy:F1}");
+
+            team.SetLineOnIce(true);
+            team.SetBenchOnIce(false);
+            team2.SetLineOnIce(true);
+            team2.SetBenchOnIce(false);
+
+            Single energyBefore = testPlayer1.Energy;
+
+            for (Int32 i = 0; i < 5; i++)
+            {
+                energyManager.UpdateEnergy(team, team2, isBreak: false);
+            }
+
+            Single energyAfter = testPlayer1.Energy;
+            Single drain = energyBefore - energyAfter;
+
+            Console.WriteLine($"\nПосле 5 тиков на льду:");
+            Console.WriteLine($"  Игрок 1: {testPlayer1.Energy:F1}/{testPlayer1.MaxEnergy:F1}");
+            Console.WriteLine($"  Игрок 2: {testPlayer2.Energy:F1}/{testPlayer2.MaxEnergy:F1}");
+            Console.WriteLine($"  Потеряно энергии игроком 1: {drain:F2}");
+
+            energyBefore = testPlayer1.Energy;
+            energyManager.UpdateEnergy(team, team2, isBreak: true);
+            energyAfter = testPlayer1.Energy;
+
+            Console.WriteLine($"\nПосле перерыва (+40):");
+            Console.WriteLine($"  Игрок 1: {testPlayer1.Energy:F1}/{testPlayer1.MaxEnergy:F1}");
+            Console.WriteLine($"  Игрок 2: {testPlayer2.Energy:F1}/{testPlayer2.MaxEnergy:F1}");
+            Console.WriteLine($"  Восстановлено: {energyAfter - energyBefore:F1}");
+
+            // Проверка
+            Boolean isValid = drain > 0 && (energyAfter - energyBefore) > 0;
+            Console.WriteLine($"\nРезультат: {(isValid ? "ПРОЙДЕН" : "ПРОВАЛЕН")}\n");
+        }
+
+        static void TestZamenaManager()
+        {
+            Console.WriteLine("ТЕСТ 13: ZamenaManager");
+            
+
+            Uniform Uniform = new Uniform(2, 3, 5, 2);
+            Stick stick = new Stick(5, 0, 2, 1, 10);
+            Skates skates = new Skates(3, 2, 3, 3, 0.10f);
+            Gloves gloves = new Gloves(2, 1, 2, 1, 8);
+
+            List<GearItem> items = new List<GearItem> { Uniform, stick, skates, gloves };
+            Equipment equipment = new Equipment("Комплект", items);
+
+            Goalie goalie1 = new Goalie(1, "Вратарь 1", 50, 60, 70, 75, equipment);
+            Goalie goalie2 = new Goalie(2, "Вратарь 2", 55, 65, 75, 70, equipment);
+
+            List<Defender> defenders = new List<Defender>();
+            for (Int32 i = 0; i < 8; i++)
+            {
+                defenders.Add(new Defender(10 + i, $"Защитник {i + 1}", 40, 70, 65, equipment));
+            }
+
+            List<Forward> forwards = new List<Forward>();
+            for (Int32 i = 0; i < 12; i++)
+            {
+                forwards.Add(new Forward(100 + i, $"Нападающий {i + 1}", 75, 45, 60, equipment));
+            }
+
+            Team team = new Team("Медведи", goalie1, goalie2, defenders, forwards);
+            team.SetLineOnIce(true);
+            team.SetBenchOnIce(false);
+
+            TimeManager timeManager = new TimeManager();
+            RollingZamenaStrategy strategy = new RollingZamenaStrategy();
+            ZamenaManager zamenaManager = new ZamenaManager(strategy);
+
+            Console.WriteLine("Стартовое звено (минута 0):");
+            PrintLine(team);
+
+            while (timeManager.CurrentMinute < 3)
+            {
+                timeManager.Tick();
+            }
+            zamenaManager.UpdateSubstitutions(team, team, timeManager);
+            Console.WriteLine($"\nПосле минуты 3 (одиночная замена):");
+            PrintLine(team);
+
+            while (timeManager.CurrentMinute < 5)
+            {
+                timeManager.Tick();
+            }
+            zamenaManager.UpdateSubstitutions(team, team, timeManager);
+            Console.WriteLine($"\nПосле минуты 5 (полная замена):");
+            PrintLine(team);
+
+            Boolean isValid = team.CurrentLine.Defenders[0].Name != "Защитник 1";
+            Console.WriteLine($"\nЗвено изменилось: {(isValid ? "Да" : "Нет")}");
+            Console.WriteLine($"\nРезультат: {(isValid ? "ПРОЙДЕН" : "ПРОВАЛЕН")}\n");
+        }
+
+        static void PrintLine(Team team)
+        {
+            Console.WriteLine("  Защитники:");
+            foreach (Defender d in team.CurrentLine.Defenders)
+            {
+                Console.WriteLine($"    {d.Name} (энергия: {d.Energy:F1}/{d.MaxEnergy:F1})");
+            }
+            Console.WriteLine("  Нападающие:");
+            foreach (Forward f in team.CurrentLine.Forwards)
+            {
+                Console.WriteLine($"    {f.Name} (энергия: {f.Energy:F1}/{f.MaxEnergy:F1})");
+            }
         }
     }
 }

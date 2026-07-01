@@ -50,11 +50,15 @@
     <Compile Include="Classes\equipment\TypesOfEquip\Skates.cs" />
     <Compile Include="Classes\equipment\TypesOfEquip\Stick.cs" />
     <Compile Include="Classes\equipment\TypesOfEquip\Uniform.cs" />
+    <Compile Include="Classes\Managers\EnergyManager.cs" />
     <Compile Include="Classes\Managers\TimeManager.cs" />
+    <Compile Include="Classes\Managers\ZamenaManager.cs" />
     <Compile Include="Classes\Players\Defender.cs" />
     <Compile Include="Classes\Players\Forward.cs" />
     <Compile Include="Classes\Players\Goalie.cs" />
     <Compile Include="Classes\Players\Player.cs" />
+    <Compile Include="Classes\Strategies\IZamenaStrategy.cs" />
+    <Compile Include="Classes\Strategies\RollingZamenaStrategy.cs" />
     <Compile Include="Classes\Teams\Line.cs" />
     <Compile Include="Classes\Teams\Team.cs" />
     <Compile Include="Program.cs" />

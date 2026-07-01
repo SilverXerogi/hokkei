@@ -50,7 +50,17 @@ namespace Хоккеи
 
         public void AddEnergy(Single amount)
         {
-            Energy = Math.Min(Energy + amount, MaxEnergy);
+            Energy = Energy + amount;
+
+            if (Energy < 0)
+            {
+                Energy = 0;
+            }
+
+            if (Energy > MaxEnergy)
+            {
+                Energy = MaxEnergy;
+            }
         }
 
         public void DrainEnergy(Single amount)
