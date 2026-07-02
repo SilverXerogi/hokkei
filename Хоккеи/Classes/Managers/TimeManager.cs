@@ -10,7 +10,7 @@ namespace Хоккеи.Classes.Managers
     {
         public const Int32 TicksPerPeriod = 1200; 
         public const Int32 TotalPeriods = 3;
-        public const Int32 BreakDurationTicks = 15; 
+        public const Int32 BreakDurationTicks = 15*60; 
 
         public Int32 CurrentTick { get;  set; }
         public Int32 CurrentPeriod { get; private set; }
@@ -90,27 +90,23 @@ namespace Хоккеи.Classes.Managers
 
         private void OnPeriodEnded()
         {
-            Console.WriteLine($"[DEBUG] OnPeriodEnded: Period={CurrentPeriod}, Tick={CurrentTick}");
             PeriodEnded?.Invoke();
 
             if (CurrentPeriod < TotalPeriods)
             {
                 IsBreak = true;
                 BreakTick = 0;
-                Console.WriteLine($"[DEBUG] Starting break, BreakDurationTicks={BreakDurationTicks}");
                 BreakStarted?.Invoke();
             }
             else
             {
                 IsMatchOver = true;
-                Console.WriteLine($"[DEBUG] Match over!");
                 MatchEnded?.Invoke();
             }
         }
 
         private void OnBreakEnded()
         {
-            Console.WriteLine($"[DEBUG] OnBreakEnded: BreakTick={BreakTick}, Period={CurrentPeriod}");
             IsBreak = false;
             CurrentTick = 0;
             BreakTick = 0;

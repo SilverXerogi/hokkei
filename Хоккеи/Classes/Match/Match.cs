@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Хоккеи.Classes.enums;
 using Хоккеи.Classes.Managers;
+using Хоккеи.Classes.Players;
 using Хоккеи.Classes.Strategies;
 using Хоккеи.Classes.Teams;
 
@@ -16,7 +17,8 @@ namespace Хоккеи.Classes.Match
         public Team Team2 { get; private set; }
         public TimeManager TimeManager { get; private set; }
         public EnergyManager EnergyManager { get; private set; }
-        public ZamenaManager ZamenaManager { get; private set; }
+        public ZamenaManager ZamenaManager1 { get; private set; }
+        public ZamenaManager ZamenaManager2 { get; private set; }
         public CombatManager CombatManager { get; private set; }
 
         public Boolean IsMatchOver
@@ -30,7 +32,8 @@ namespace Хоккеи.Classes.Match
             Team2 = team2;
             TimeManager = new TimeManager();
             EnergyManager = new EnergyManager();
-            ZamenaManager = new ZamenaManager(new RollingZamenaStrategy());
+            ZamenaManager1 = new ZamenaManager(new RollingZamenaStrategy());
+            ZamenaManager2 = new ZamenaManager(new RollingZamenaStrategy());
             CombatManager = new CombatManager();
 
             TimeManager.PeriodEnded += OnPeriodEnded;
@@ -63,10 +66,16 @@ namespace Хоккеи.Classes.Match
                 return;
             }
 
-            ZamenaManager.UpdateSubstitutions(Team1, Team2, TimeManager);
+            ZamenaManager1.UpdateSubstitutions(Team1, TimeManager);
+            ZamenaManager2.UpdateSubstitutions(Team2, TimeManager);
 
             EnergyManager.UpdateEnergy(Team1, Team2, isBreak: false);
-
+            /*
+            if ((TimeManager.CurrentSecond == 59)^(TimeManager.CurrentSecond == 1))
+            {
+                LogLineStatus();
+            }
+            */
             if (TimeManager.CurrentSecond == 0)
             {
                 ResolveCurrentMinuteAttack();
@@ -93,11 +102,24 @@ namespace Хоккеи.Classes.Match
 
             AttackResult result = CombatManager.ResolveAttack(attackingTeam, defendingTeam);
 
-            if (result == AttackResult.Goal)
+            String resultText;
+            switch (result)
             {
-                attackingTeam.Goal();
-                Console.WriteLine($"[{TimeManager.GetFormattedTime()}] ГОЛ {attackingTeam.Name} забивает Счёт: {Team1.Name} {Team1.Score} - {Team2.Score} {Team2.Name}");
+                case AttackResult.Blocked:
+                    resultText = "Защитники спасли";
+                    break;
+                case AttackResult.Saved:
+                    resultText = "Вратарь спас";
+                    break;
+                case AttackResult.Goal:
+                    attackingTeam.Goal();
+                    resultText = "Гол";
+                    break;
+                default:
+                    resultText = "Неизвестно";
+                    break;
             }
+            Console.WriteLine($"{TimeManager.GetFormattedTime()}  {attackingTeam.Name}  атакуют  {defendingTeam.Name}   {resultText}");
         }
 
         private void OnPeriodEnded()
@@ -115,6 +137,15 @@ namespace Хоккеи.Classes.Match
 
         private void OnBreakEnded()
         {
+
+            ZamenaManager1.Strategy.Reset();
+            ZamenaManager2.Strategy.Reset();
+
+
+            Team1.SetStandardLine();
+            Team2.SetStandardLine();
+            
+            
             Console.WriteLine($"Начало {TimeManager.CurrentPeriod} периода\n");
 
             Team1.SwitchGoalie();
@@ -140,6 +171,29 @@ namespace Хоккеи.Classes.Match
             else
             {
                 Console.WriteLine("Ничья!");
+            }
+        }
+
+        private void LogLineStatus()
+        {
+            Console.WriteLine($"\n {TimeManager.GetFormattedTime()}  Состояние звеньев на льду:  ");
+
+            Console.WriteLine($"{Team1.Name}: ");
+            foreach (Defender d in Team1.CurrentLine.Defenders)
+            {
+                Console.WriteLine($"{d.Name}: energy: {d.Energy}/{d.MaxEnergy}   IsOnIce = {d.IsOnIce}");
+            }
+            foreach (Forward f in Team1.CurrentLine.Forwards)
+            {
+                Console.WriteLine($"{f.Name}: energy: {f.Energy}/{f.MaxEnergy}  IsOnIce = { f.IsOnIce}");
+            }
+            foreach (Defender d in Team2.CurrentLine.Defenders)
+            {
+                Console.WriteLine($"{d.Name}: energy: {d.Energy}/{d.MaxEnergy}  IsOnIce = { d.IsOnIce}");
+            }
+            foreach (Forward f in Team2.CurrentLine.Forwards)
+            {
+                Console.WriteLine($"{f.Name}: energy: {f.Energy}/{f.MaxEnergy}  IsOnIce = { f.IsOnIce}");
             }
         }
     }

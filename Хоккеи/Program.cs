@@ -17,16 +17,16 @@ namespace Хоккеи
 
 
             Equipment equipment = CreateDefaultEquipment();
-
+            int stam = 300;
             Team team1 = CreateTeam("Медведи", equipment,
                 goalieSaveChance1: 75, goalieSaveChance2: 70,
-                defenderAgility: 40, defenderStrength: 70, defenderStamina: 65,
-                forwardAgility: 75, forwardStrength: 45, forwardStamina: 60);
+                defenderAgility: 40, defenderStrength: 70, defenderStamina: stam,
+                forwardAgility: 75, forwardStrength: 45, forwardStamina: stam);
 
             Team team2 = CreateTeam("Волки", equipment,
                 goalieSaveChance1: 75, goalieSaveChance2: 70,
-                defenderAgility: 45, defenderStrength: 75, defenderStamina: 70,
-                forwardAgility: 70, forwardStrength: 50, forwardStamina: 65);
+                defenderAgility: 45, defenderStrength: 75, defenderStamina: stam,
+                forwardAgility: 70, forwardStrength: 50, forwardStamina: stam);
 
             Match match = new Match(team1, team2);
 

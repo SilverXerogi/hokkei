@@ -10,17 +10,17 @@ namespace Хоккеи.Classes.Managers
 {
     public class ZamenaManager
     {
-        private IZamenaStrategy Strategy { get; set; }
+        public IZamenaStrategy Strategy { get; set; }
 
         public ZamenaManager(IZamenaStrategy strategy)
         {
             Strategy = strategy;
         }
 
-        public void UpdateSubstitutions(Team team1, Team team2, TimeManager timeManager)
+        public void UpdateSubstitutions(Team team, TimeManager timeManager)
         {
-            Strategy.UpdateLine(team1, timeManager);
-            Strategy.UpdateLine(team2, timeManager);
+            Strategy.UpdateLine(team, timeManager);
+            
         }
 
         public void SetStrategy(IZamenaStrategy strategy)

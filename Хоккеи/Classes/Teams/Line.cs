@@ -48,6 +48,8 @@ namespace Хоккеи.Classes.Teams
             Int32 index = Defenders.IndexOf(oldDefender);
             if (index >= 0)
             {
+                oldDefender.SetOnIce(false);
+                newDefender.SetOnIce(true);
                 Defenders[index] = newDefender;
             }
         }
@@ -57,6 +59,8 @@ namespace Хоккеи.Classes.Teams
             Int32 index = Forwards.IndexOf(oldForward);
             if (index >= 0)
             {
+                oldForward.SetOnIce(false);
+                newForward.SetOnIce(true);
                 Forwards[index] = newForward;
             }
         }

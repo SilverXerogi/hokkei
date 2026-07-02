@@ -11,5 +11,6 @@ namespace Хоккеи.Classes.Strategies
     public interface IZamenaStrategy
     {
         void UpdateLine(Team team, TimeManager timeManager);
+        void Reset();
     }
 }

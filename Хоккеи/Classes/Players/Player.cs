@@ -65,7 +65,11 @@ namespace Хоккеи
 
         public void DrainEnergy(Single amount)
         {
-            Energy = Math.Max(Energy - amount, 0);
+            Energy -= amount;
+            if (Energy < 0)
+            {
+                Energy = 0;
+            } 
         }
 
         public Int32 GetTotalAgility() => Agility + Gear.TotalAgilityBonus;

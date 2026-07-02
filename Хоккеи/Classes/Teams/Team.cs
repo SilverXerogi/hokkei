@@ -107,7 +107,11 @@ namespace Хоккеи.Classes.Teams
         {
             List<Defender> standardDefenders = AllDefenders.Take(2).ToList();
             List<Forward> standardForwards = AllForwards.Take(3).ToList();
+            
             CurrentLine = new Line(standardDefenders, standardForwards);
+            
+
+
             UpdateBench();
         }
 
@@ -136,8 +140,18 @@ namespace Хоккеи.Classes.Teams
         private void UpdateBench()
         {
             Bench.Clear();
-            Bench.AddRange(AllDefenders.Where(d => !CurrentLine.Defenders.Contains(d)));
-            Bench.AddRange(AllForwards.Where(f => !CurrentLine.Forwards.Contains(f)));
+            foreach (Defender defender in AllDefenders){
+                if (!(CurrentLine.Defenders.Contains(defender))){
+                    defender.SetOnIce(false);
+                    Bench.Add(defender);
+                }
+            }
+            foreach (Forward forward in AllForwards){
+                if (!(CurrentLine.Forwards.Contains(forward))){
+                    forward.SetOnIce(false);
+                    Bench.Add(forward);
+                }
+            }
         }
 
         public void TickEnergy()

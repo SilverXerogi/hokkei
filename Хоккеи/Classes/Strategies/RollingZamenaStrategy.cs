@@ -19,13 +19,16 @@ namespace Хоккеи.Classes.Strategies
 
         public RollingZamenaStrategy()
         {
+            Reset();
+        }
+        public void Reset()
+        {
             CurrentDefenderPairIndex = 0;
             CurrentForwardTripletIndex = 0;
             LastSubstitutionMinute = 0;
             LastFullChangeMinute = 0;
             IsInAttackMode = false;
         }
-
         public void UpdateLine(Team team, TimeManager timeManager)
         {
             Int32 currentMinute = timeManager.CurrentMinute;
