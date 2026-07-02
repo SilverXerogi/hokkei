@@ -25,9 +25,17 @@ namespace Хоккеи.Classes.Managers
 
         public AttackResult ResolveAttack(Team attackingTeam, Team defendingTeam)
         {
-            Int32 totalAttackChance = CalculateTotalAttackChance(attackingTeam);
+            Int32 totalAttackChance = 0;
+            foreach (Forward forward in attackingTeam.Forwards)
+            {
+                totalAttackChance += forward.GetAttackChance();
+            }
 
-            Int32 totalDefenseChance = CalculateTotalDefenseChance(defendingTeam);
+            Int32 totalDefenseChance = 0;
+            foreach (Defender defender in defendingTeam.Defenders)
+            {
+                totalDefenseChance += defender.GetDefenseChance();
+            }
 
             Int32 attackRoll = RandomGenerator.Next(0, Math.Max(totalAttackChance, 1));
             Int32 defenseRoll = RandomGenerator.Next(0, Math.Max(totalDefenseChance, 1));
@@ -37,7 +45,7 @@ namespace Хоккеи.Classes.Managers
                 return AttackResult.Blocked;
             }
 
-            Int32 saveChance = CalculateGoalieSaveChance(defendingTeam.CurrentGoalie);
+            Int32 saveChance = CalculateGoalieSaveChance(defendingTeam.Goalie);
             Int32 saveRoll = RandomGenerator.Next(0, 100);
 
             if (saveRoll < saveChance)
@@ -48,25 +56,7 @@ namespace Хоккеи.Classes.Managers
             return AttackResult.Goal;
         }
 
-        private Int32 CalculateTotalAttackChance(Team team)
-        {
-            Int32 total = 0;
-            foreach (Forward forward in team.CurrentLine.Forwards)
-            {
-                total += forward.GetAttackChance();
-            }
-            return total;
-        }
-
-        private Int32 CalculateTotalDefenseChance(Team team)
-        {
-            Int32 total = 0;
-            foreach (Defender defender in team.CurrentLine.Defenders)
-            {
-                total += defender.GetDefenseChance();
-            }
-            return total;
-        }
+        
 
         private Int32 CalculateGoalieSaveChance(Goalie goalie)
         {

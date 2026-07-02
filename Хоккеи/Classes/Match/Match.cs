@@ -41,10 +41,7 @@ namespace Хоккеи.Classes.Match
             TimeManager.BreakEnded += OnBreakEnded;
             TimeManager.MatchEnded += OnMatchEnded;
 
-            Team1.SetLineOnIce(true);
-            Team1.SetBenchOnIce(false);
-            Team2.SetLineOnIce(true);
-            Team2.SetBenchOnIce(false);
+            
         }
 
         public Match(Team team1, Team team2, Int32 seed) : this(team1, team2)
@@ -151,7 +148,7 @@ namespace Хоккеи.Classes.Match
             Team1.SwitchGoalie();
             Team2.SwitchGoalie();
 
-            Console.WriteLine($"Вратари: {Team1.Name} - {Team1.CurrentGoalie.Name}, {Team2.Name} - {Team2.CurrentGoalie.Name}");
+            Console.WriteLine($"Вратари: {Team1.Name} - {Team1.Goalie.Name}, {Team2.Name} - {Team2.Goalie.Name}");
         }
 
         private void OnMatchEnded()

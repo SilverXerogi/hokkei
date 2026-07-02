@@ -10,14 +10,24 @@ namespace Хоккеи.Classes.Teams
     public class Team
     {
         public String Name { get; private set; }
+        public Player[] Players { get; }
         public Goalie StartingGoalie { get; private set; }
         public Goalie BackupGoalie { get; private set; }
-        public Goalie CurrentGoalie { get; private set; }
-        public List<Defender> AllDefenders { get; private set; }
-        public List<Forward> AllForwards { get; private set; }
+        
         public Line CurrentLine { get; private set; }
-        public List<Player> Bench { get; private set; }
+        
         public Int32 Score { get; private set; }
+
+
+        public Player[] OnIcePlayers => Players.Where(p => p.IsOnIce).ToArray();
+        public Player[] Bench => Players.Where(p => !p.IsOnIce).ToArray();
+
+        public Goalie Goalie => OnIcePlayers.OfType<Goalie>().First();
+        public Defender[] Defenders => OnIcePlayers.OfType<Defender>().ToArray();
+        public Forward[] Forwards => OnIcePlayers.OfType<Forward>().ToArray();
+
+        public Defender[] AllDefenders => Players.OfType<Defender>().ToArray();
+        public Forward[] AllForwards => Players.OfType<Forward>().ToArray();
 
         public Team(String name, Goalie startingGoalie, Goalie backupGoalie,
                     List<Defender> defenders, List<Forward> forwards)
@@ -30,51 +40,36 @@ namespace Хоккеи.Classes.Teams
             Name = name;
             StartingGoalie = startingGoalie;
             BackupGoalie = backupGoalie;
-            CurrentGoalie = StartingGoalie; 
-            AllDefenders = new List<Defender>(defenders);
-            AllForwards = new List<Forward>(forwards);
             Score = 0;
-            Bench = new List<Player>();
+            List<Player> allPlayers = new List<Player>();
+            allPlayers.Add(startingGoalie);
+            allPlayers.Add(backupGoalie);
+            allPlayers.AddRange(defenders);
+            allPlayers.AddRange(forwards);
+            Players = allPlayers.ToArray();
 
-            
-            List<Defender> startingDefenders = AllDefenders.Take(2).ToList();
-            List<Forward> startingForwards = AllForwards.Take(3).ToList();
+
+            startingGoalie.SetOnIce(true);
+            backupGoalie.SetOnIce(false);
+
+            List<Defender> startingDefenders = defenders.Take(2).ToList();
+            List<Forward> startingForwards = forwards.Take(3).ToList();
             CurrentLine = new Line(startingDefenders, startingForwards);
-
-            
-            CurrentGoalie.SetOnIce(true);
-
-            
-            Bench.AddRange(AllDefenders.Skip(2));  
-            Bench.AddRange(AllForwards.Skip(3));   
+            CurrentLine.SetAllOnIce(true);
         }
 
         public void SwitchGoalie()
         {
-            CurrentGoalie.SetOnIce(false);
+            Goalie currentGoalie = Goalie;
+            currentGoalie.SetOnIce(false);
 
-            if (CurrentGoalie == StartingGoalie)
+            if (currentGoalie == StartingGoalie)
             {
-                CurrentGoalie = BackupGoalie;
+                BackupGoalie.SetOnIce(true);
             }
             else
             {
-                CurrentGoalie = StartingGoalie;
-            }
-
-            CurrentGoalie.SetOnIce(true);
-        }
-
-        public void SetLineOnIce(Boolean isOnIce)
-        {
-            CurrentLine.SetAllOnIce(isOnIce);
-        }
-
-        public void SetBenchOnIce(Boolean isOnIce)
-        {
-            foreach (Player player in Bench)
-            {
-                player.SetOnIce(isOnIce);
+                StartingGoalie.SetOnIce(true);
             }
         }
 
@@ -83,85 +78,69 @@ namespace Хоккеи.Classes.Teams
             Score++;
         }
 
-        public void ReplaceDefenderInLine(Defender oldDefender, Defender newDefender)
+        public void ReplacePlayerInLine(Player oldPlayer, Player newPlayer)
         {
-            CurrentLine.ReplaceDefender(oldDefender, newDefender);
-            UpdateBench();
+            CurrentLine.ReplacePlayer(oldPlayer, newPlayer);
         }
 
-        public void ReplaceForwardInLine(Forward oldForward, Forward newForward)
+        public void SetLine(Defender[] defenders, Forward[] forwards)
         {
-            CurrentLine.ReplaceForward(oldForward, newForward);
-            UpdateBench();
+            foreach (Defender d in AllDefenders) d.SetOnIce(false);
+            foreach (Forward f in AllForwards) f.SetOnIce(false);
+
+            CurrentLine = new Line(new List<Defender>(defenders), new List<Forward>(forwards));
+            CurrentLine.SetAllOnIce(true);
+        }
+        public void SetStandardLine()
+        {
+            foreach (Defender d in AllDefenders) d.SetOnIce(false);
+            foreach (Forward f in AllForwards) f.SetOnIce(false);
+
+            List<Defender> standardDefenders = AllDefenders.Take(2).ToList();
+            List<Forward> standardForwards = AllForwards.Take(3).ToList();
+            CurrentLine = new Line(standardDefenders, standardForwards);
+            CurrentLine.SetAllOnIce(true);
         }
 
         public void SetAttackLine()
         {
-            List<Defender> attackDefenders = AllDefenders.Take(2).ToList();
-            List<Forward> attackForwards = AllForwards.Take(3).ToList();
-            CurrentLine = new Line(attackDefenders, attackForwards);
-            UpdateBench();
+            SetStandardLine();
         }
 
-        public void SetStandardLine()
-        {
-            List<Defender> standardDefenders = AllDefenders.Take(2).ToList();
-            List<Forward> standardForwards = AllForwards.Take(3).ToList();
-            
-            CurrentLine = new Line(standardDefenders, standardForwards);
-            
-
-
-            UpdateBench();
-        }
 
         public void FullLineChange()
         {
-            List<Defender> newDefenders = AllDefenders.Where(d => !CurrentLine.Defenders.Contains(d)).Take(2).ToList();
-            List<Forward> newForwards = AllForwards.Where(f => !CurrentLine.Forwards.Contains(f)).Take(3).ToList();
+            Defender[] currentDefenders = Defenders;
+            Forward[] currentForwards = Forwards;
+
+            List<Defender> newDefenders = AllDefenders.Where(d => !currentDefenders.Contains(d)).Take(2).ToList();
+            List<Forward> newForwards = AllForwards.Where(f => !currentForwards.Contains(f)).Take(3).ToList();
 
             if (newDefenders.Count == 2 && newForwards.Count == 3)
             {
+                foreach (Defender d in currentDefenders) d.SetOnIce(false);
+                foreach (Forward f in currentForwards) f.SetOnIce(false);
+
                 CurrentLine = new Line(newDefenders, newForwards);
-                UpdateBench();
+                CurrentLine.SetAllOnIce(true);
             }
         }
 
-        public List<Defender> GetAvailableDefenders()
+        public Defender[] GetAvailableDefenders()
         {
-            return AllDefenders.Where(d => !CurrentLine.Defenders.Contains(d)).ToList();
+            return AllDefenders.Where(d => !CurrentLine.Defenders.Contains(d)).ToArray();
         }
 
-        public List<Forward> GetAvailableForwards()
+        public Forward[] GetAvailableForwards()
         {
-            return AllForwards.Where(f => !CurrentLine.Forwards.Contains(f)).ToList();
+            return AllForwards.Where(f => !CurrentLine.Forwards.Contains(f)).ToArray();
         }
 
-        private void UpdateBench()
-        {
-            Bench.Clear();
-            foreach (Defender defender in AllDefenders){
-                if (!(CurrentLine.Defenders.Contains(defender))){
-                    defender.SetOnIce(false);
-                    Bench.Add(defender);
-                }
-            }
-            foreach (Forward forward in AllForwards){
-                if (!(CurrentLine.Forwards.Contains(forward))){
-                    forward.SetOnIce(false);
-                    Bench.Add(forward);
-                }
-            }
-        }
+        
 
         public void TickEnergy()
         {
-            CurrentGoalie.TickEnergy();
-            foreach (Player player in AllDefenders)
-            {
-                player.TickEnergy();
-            }
-            foreach (Player player in AllForwards)
+            foreach (Player player in Players)
             {
                 player.TickEnergy();
             }
@@ -169,13 +148,7 @@ namespace Хоккеи.Classes.Teams
 
         public void AddEnergyToAll(Single amount)
         {
-            StartingGoalie.AddEnergy(amount);
-            BackupGoalie.AddEnergy(amount);
-            foreach (Player player in AllDefenders)
-            {
-                player.AddEnergy(amount);
-            }
-            foreach (Player player in AllForwards)
+            foreach (Player player in Players)
             {
                 player.AddEnergy(amount);
             }
@@ -184,12 +157,8 @@ namespace Хоккеи.Classes.Teams
         public void SetCurrentLine(Line newLine)
         {
             CurrentLine.SetAllOnIce(false);
-
             CurrentLine = newLine;
-
             CurrentLine.SetAllOnIce(true);
-
-            UpdateBench();
         }
     }
 }

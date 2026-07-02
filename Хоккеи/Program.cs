@@ -31,7 +31,7 @@ namespace Хоккеи
             Match match = new Match(team1, team2);
 
             Console.WriteLine($"{team1.Name} vs {team2.Name}");
-            Console.WriteLine($"Вратари: {team1.CurrentGoalie.Name} vs {team2.CurrentGoalie.Name}");
+            Console.WriteLine($"Вратари: {team1.Goalie.Name} vs {team2.Goalie.Name}");
             
 
             while (!match.IsMatchOver)

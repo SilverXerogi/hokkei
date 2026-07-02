@@ -46,7 +46,7 @@ namespace Хоккеи.Classes.Strategies
             if (IsInAttackMode)
             {
                 IsInAttackMode = false;
-                ApplyStandardLine(team);
+                team.SetStandardLine();
             }
 
             if (currentMinute <= 2)
@@ -90,20 +90,30 @@ namespace Хоккеи.Classes.Strategies
             CurrentDefenderPairIndex = (CurrentDefenderPairIndex + 1) % 4;
             CurrentForwardTripletIndex = (CurrentForwardTripletIndex + 1) % 4;
 
-            ApplyStandardLine(team);
+            Defender[] defenders = team.AllDefenders
+                .Skip(CurrentDefenderPairIndex * 2)
+                .Take(2)
+                .ToArray();
+
+            Forward[] forwards = team.AllForwards
+                .Skip(CurrentForwardTripletIndex * 3)
+                .Take(3)
+                .ToArray();
+
+            team.SetLine(defenders, forwards);
         }
 
         private void PerformSinglePlayerChange(Team team)
         {
             Player mostTiredPlayer = FindMostTiredPlayer(team);
 
-            if (mostTiredPlayer is Forward)
+            if (mostTiredPlayer is Forward tiredForward)
             {
-                ReplaceForward(team, mostTiredPlayer as Forward);
+                ReplacePlayer(team, tiredForward);
             }
-            else if (mostTiredPlayer is Defender)
+            else if (mostTiredPlayer is Defender tiredDefender)
             {
-                ReplaceDefender(team, mostTiredPlayer as Defender);
+                ReplacePlayer(team, tiredDefender);
             }
         }
 
@@ -112,7 +122,7 @@ namespace Хоккеи.Classes.Strategies
             Player mostTired = null;
             Single lowestEnergyRatio = Single.MaxValue;
 
-            foreach (Defender defender in team.CurrentLine.Defenders)
+            foreach (Defender defender in team.Defenders)
             {
                 Single ratio = defender.Energy / defender.MaxEnergy;
                 if (ratio < lowestEnergyRatio)
@@ -122,7 +132,7 @@ namespace Хоккеи.Classes.Strategies
                 }
             }
 
-            foreach (Forward forward in team.CurrentLine.Forwards)
+            foreach (Forward forward in team.Forwards)
             {
                 Single ratio = forward.Energy / forward.MaxEnergy;
                 if (ratio < lowestEnergyRatio)
@@ -135,51 +145,27 @@ namespace Хоккеи.Classes.Strategies
             return mostTired;
         }
 
-        private void ReplaceForward(Team team, Forward tiredForward)
+        private void ReplacePlayer(Team team, Player tiredPlayer)
         {
-            Forward freshestForward = null;
+            Player freshestPlayer = null;
             Single highestEnergyRatio = Single.MinValue;
 
             foreach (Player benchPlayer in team.Bench)
             {
-                if (benchPlayer is Forward forward)
+                if (tiredPlayer is Forward && !(benchPlayer is Forward)) continue;
+                if (tiredPlayer is Defender && !(benchPlayer is Defender)) continue;
+
+                Single ratio = benchPlayer.Energy / benchPlayer.MaxEnergy;
+                if (ratio > highestEnergyRatio)
                 {
-                    Single ratio = forward.Energy / forward.MaxEnergy;
-                    if (ratio > highestEnergyRatio)
-                    {
-                        highestEnergyRatio = ratio;
-                        freshestForward = forward;
-                    }
+                    highestEnergyRatio = ratio;
+                    freshestPlayer = benchPlayer;
                 }
             }
 
-            if (freshestForward != null)
+            if (freshestPlayer != null)
             {
-                team.ReplaceForwardInLine(tiredForward, freshestForward);
-            }
-        }
-
-        private void ReplaceDefender(Team team, Defender tiredDefender)
-        {
-            Defender freshestDefender = null;
-            Single highestEnergyRatio = Single.MinValue;
-
-            foreach (Player benchPlayer in team.Bench)
-            {
-                if (benchPlayer is Defender defender)
-                {
-                    Single ratio = defender.Energy / defender.MaxEnergy;
-                    if (ratio > highestEnergyRatio)
-                    {
-                        highestEnergyRatio = ratio;
-                        freshestDefender = defender;
-                    }
-                }
-            }
-
-            if (freshestDefender != null)
-            {
-                team.ReplaceDefenderInLine(tiredDefender, freshestDefender);
+                team.ReplacePlayerInLine(tiredPlayer, freshestPlayer);
             }
         }
     }
